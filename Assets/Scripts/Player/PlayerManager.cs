@@ -69,19 +69,28 @@ public class PlayerManager : MonoBehaviour
                 healing = false;
             }
 
-
         }
         else
         {
-            float cooldownNoDamage = timeToHeal;
+            
+        }
+    }
+
+    float cooldownNoDamage = 0;
+    IEnumerator checkHeal()
+    {
+        if (!damn)
+        {
+            cooldownNoDamage = timeToHeal;
             cooldownNoDamage -= Time.deltaTime;
 
-            if (cooldownNoDamage < 0)
+            if (cooldownNoDamage <= 0)
             {
                 healing = true;
             }
-
         }
+        yield return new WaitForSeconds(2f);
+        StartCoroutine(checkHeal());
     }
     public void attack()
     {
