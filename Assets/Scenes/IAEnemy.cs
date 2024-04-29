@@ -1,97 +1,118 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI; 
 
 public class IAEnemy : MonoBehaviour
 {
+    [Header("Referencias")]
     public GameObject Jugador;
     public GameObject BaseVida;
     public GameObject BaseBalas;
+    public GameObject Pistola;
     public NavMeshAgent agent;
-    public int VidaPLayer;
-    public int minVidaPlayer;
-    public GameObject ObjetoPrueba;
-  //private Transform jugadorTransform;
-    public float vida;
-    public int balas;
-    public float minArmor;
-    public float minVida;
-    public float minDistancia;
-    public float Distance;
     public GameObject proyectil;
-    public bool atacando;
-    public int prueba = 0;
     public GameObject[] cantidadBalas;
+
+    public FuzzyLogic fuzzyLogic;
+
+    [Header("Variables")]
+    public float vida =100;
+    public float Maxvida = 150;
+    public int balas = 30;
+    public int Maxbalas = 30;
+    public float distance;
+    public float DistanceA;
+    public float DistanceV;
+    
+    public bool atacando;
+    public bool recargando;
+    public bool healing;
+
+    public int prueba = 0;
+
+    private void Awake()
+    {
+        PlayerManager pl = Jugador.GetComponent<PlayerManager>();
+        fuzzyLogic = new FuzzyLogic(pl.Maxvida, pl.Vida, balas, distance, DistanceA, DistanceV, vida, Maxvida, Maxbalas);
+        agent = GetComponent<NavMeshAgent>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        //Jugador = GetComponent<GameObject>();
-        minArmor = (balas * 0.30f);
-        minVida = (balas * 0.30f);
-        cantidadBalas = new GameObject[30];
 
-        for (int i = 0; i < cantidadBalas.Length; i++)
-        {
-            GameObject NuevoProyectil = Instantiate(proyectil, transform.position, Quaternion.identity);
-            cantidadBalas[i]=NuevoProyectil.GetComponent<GameObject>();
-        }
     }
+    private void FixedUpdate()
+    {
+        DistanceA = Vector3.Distance(this.gameObject.transform.position, BaseBalas.transform.position);
+        DistanceV = Vector3.Distance(this.gameObject.transform.position, BaseVida.transform.position);
+        distance = Vector3.Distance(this.gameObject.transform.position, Jugador.transform.position);
 
-    // Update is called once per frame
+        if (fuzzyLogic.fuzzydistancePlayer == 50)
+        {
+            HuirPlayer();
+            agent.speed = 3.5f;
+
+        }
+        else if (fuzzyLogic.fuzzydistancePlayer < 50)
+        {
+
+            HuirPlayer();
+            agent.speed = 5.5f;
+        }
+
+    }
     void Update()
     {
-        switch (prueba)
+        LookAtPlayer();
+
+        if (Time.time >= nextFireTime)
         {
-            case 0: atacar(); break;
-            case 1: HuirArmor(); break;
-            case 2: HuirVida(); break;
-            case 3 : break;
-
+            Shoot();
+            nextFireTime = Time.time + 1f / fireRate;
         }
-        /*   Distance = Vector3.Distance(transform.position, Jugador.transform.position);
-           if (vida>minVida)
-           {
-               if (Distance> minDistancia && balas > minArmor)
-               {
-                   if (atacando == false)
-                   {
-                       atacando = true;
-                       atacar();
-                   }
-               }
-               if (Distance <= minDistancia && balas <= minArmor && balas != 0 && VidaPLayer >30)
-               {
-
-                   //agent.isStopped = false;
-                   agent.destination = BaseBalas.transform.position;
-
-               }
-           }
-           else
-           {
-               agent.destination = BaseVida.transform.position;
-
-           }*/
-
     }
 
-   
-
-    public IEnumerator atacar() 
+    public float rotationSpeed = 1f;
+    public void LookAtPlayer()
     {
-        Console.WriteLine("disparando");
-        yield return new WaitForSeconds(0.3f);
-        atacando = false;
+        Vector3 direction = (Jugador.transform.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+
     }
-
-    public void disparando() 
+    float timeTocharge = 1.0f;
+    float timeToNextcharge = 1.0f;
+    public void recharge()
     {
-      
-    
-    
+        timeTocharge -= Time.deltaTime;
+
+        if (timeTocharge < 0)
+        {
+            balas++;
+            timeTocharge = timeToNextcharge;
+        }
+
+
+    }
+    public float velBala = 1;
+    public float fireRate = 1f;
+    private float nextFireTime = 0f;
+    public void Shoot() 
+    {
+        Vector3 a = new Vector3(-90, 0, 0);
+        GameObject tempBala = Instantiate(proyectil, Pistola.transform.position, new Quaternion(a.x,0,0,90));
+        Rigidbody rb = tempBala.GetComponent<Rigidbody>();
+
+        rb.AddForce(transform.forward * velBala*10);
+        balas--;
+//        fuzzyLogic.Ammo = balas;
+        fuzzyLogic.Fuzzify();
+        Destroy(tempBala,2.75f);
+
     }
 
     public void HuirVida()
@@ -103,6 +124,9 @@ public class IAEnemy : MonoBehaviour
     {
         agent.destination = BaseBalas.transform.position;
     }
-
+    public void HuirPlayer()
+    {
+        agent.SetDestination(Jugador.transform.position * -1 );
+    }
    
 }

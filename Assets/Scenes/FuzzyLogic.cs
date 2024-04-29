@@ -5,32 +5,29 @@ using UnityEngine;
 public class FuzzyLogic
 {
     //Variables
-    float MaxplayerHealth;
-    float playerHealth;
-    int ammo;
+    float maxplayerHealth;
+    float playerHealth; 
     int MaxAmmo;
-    float distancePlayer;
-    float distanceAmmo;
-    float distanceHealth;
-    float health;
+    int ammo; 
+    float distancePlayer; 
+    float distanceAmmo; 
+    float distanceHealth; 
+    float health; 
     float MaxHealth;
 
-    //enum TAGS {NULL, CERCA, LEJOS, INTERMEDIO}
-    //TAGS distanceAmo, distancePlay, distanceHeal;
-
     //FUZZY VARIABLES
-    float fuzzyPlayerHealth;
-    float fuzzyHealth;
-    float fuzzyAmmo;
-    float fuzzydistancePlayer;
-    float fuzzydistanceAmmo;
-    float fuzzydistanceHealth;
+    public float fuzzyPlayerHealth;
+    public float fuzzyHealth;
+    public float fuzzyAmmo;
+    public float fuzzydistancePlayer;
+    public float fuzzydistanceAmmo;
+    public float fuzzydistanceHealth;
 
 
     public FuzzyLogic(float _MaxplayerHealth, float _playerHealth, int _ammo, float _distancePlayer,
         float _distanceAmmo , float _distanceHealth, float _health, float _MaxHealth, int _MaxAmmo)
     {
-        MaxplayerHealth = _MaxplayerHealth;
+        maxplayerHealth = _MaxplayerHealth;
         playerHealth = _playerHealth;
         ammo = _ammo;
         MaxAmmo = _MaxAmmo;
@@ -40,34 +37,36 @@ public class FuzzyLogic
         health = _health;
         MaxHealth = _MaxHealth;
 
-        //distanceAmo = TAGS.NULL;
-        //distanceHeal = TAGS.NULL;
-        //distancePlay = TAGS.NULL;
-
-
     }
+
 
     public void Fuzzify()
     {
-        fuzzyAmmo = (ammo * 100) / MaxAmmo;
-        fuzzyPlayerHealth = (playerHealth * 100) / MaxplayerHealth;
-        fuzzyHealth = (health * 100) / MaxHealth;
+        //Variables
+        fuzzyAmmo = FuzzifyV(ammo,MaxAmmo);
+        fuzzyPlayerHealth = FuzzifyV(playerHealth,maxplayerHealth);
+        fuzzyHealth = FuzzifyV(health, MaxHealth);
 
-       
-
-        /*if( distanceAmmo < distanceHealth && distanceAmmo < distancePlayer)
-        {
-            distanceAmo = TAGS.CERCA;
-
-            if (distanceHealth > distanceAmmo && distanceHealth < distancePlayer)
-            {
-                distanceHeal = TAGS.INTERMEDIO;
-                distancePlay = TAGS.LEJOS;
-            }
-        }*/
-
+        //Distancias
+        fuzzydistancePlayer = FuzzyfyD(distancePlayer);
+        fuzzydistanceAmmo = FuzzyfyD(distanceAmmo);
+        fuzzydistanceHealth = FuzzyfyD(distanceHealth);
 
     }
+    //rangos
+    float FuzzyfyD(float distance)
+    {
+        if (distance < 5) { return 100; }// Cerca
+        else if (distance >= 5 && distance < 10) { return 50; }// Intermedio
+        else { return 0; }// Lejos
+        
+    }
+    //regla de 3
+    float FuzzifyV(float a, float maxValue)
+    {
+        return (a*100)/ maxValue;
+    }
+
     void SortList(List<float> list)
     {
         List<float> sorted = new List<float>();
@@ -80,7 +79,6 @@ public class FuzzyLogic
             {
                 sorted.Add(item);
                 list.Remove(item);
-
             }
             i++;
         }

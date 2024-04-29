@@ -6,8 +6,8 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     [Header("Vida")]
-    [SerializeField] float vida = 100;
-    [SerializeField] float maxvida = 100;
+    [SerializeField] float vida = 100; public float Vida {  get { return vida; } }
+    [SerializeField] float maxvida = 100; public float Maxvida { get { return maxvida; } }
     [SerializeField] float timeToHeal = 5f;
     public bool healing= false;
 
