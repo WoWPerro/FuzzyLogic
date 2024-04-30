@@ -39,7 +39,12 @@ public class FuzzyLogic
 
     }
 
-
+    public void ActDist(float _distancePlayer, float _distanceAmmo, float _distanceHealth)
+    {
+        distancePlayer = _distancePlayer;
+        distanceAmmo = _distanceAmmo;
+        distanceHealth = _distanceHealth;
+    }
     public void Fuzzify()
     {
         //Variables
@@ -56,8 +61,10 @@ public class FuzzyLogic
     //rangos
     float FuzzyfyD(float distance)
     {
+
+        //Debug.Log(distance);
         if (distance < 5) { return 100; }// Cerca
-        else if (distance >= 5 && distance < 10) { return 50; }// Intermedio
+        else if (distance >= 3 && distance < 10) { return 50; }// Intermedio
         else { return 0; }// Lejos
         
     }

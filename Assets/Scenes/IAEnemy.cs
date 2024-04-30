@@ -44,25 +44,14 @@ public class IAEnemy : MonoBehaviour
     void Start()
     {
 
+
     }
     private void FixedUpdate()
     {
         DistanceA = Vector3.Distance(this.gameObject.transform.position, BaseBalas.transform.position);
         DistanceV = Vector3.Distance(this.gameObject.transform.position, BaseVida.transform.position);
         distance = Vector3.Distance(this.gameObject.transform.position, Jugador.transform.position);
-
-        if (fuzzyLogic.fuzzydistancePlayer == 50)
-        {
-            HuirPlayer();
-            agent.speed = 3.5f;
-
-        }
-        else if (fuzzyLogic.fuzzydistancePlayer < 50)
-        {
-
-            HuirPlayer();
-            agent.speed = 5.5f;
-        }
+        fuzzyLogic.ActDist(distance, DistanceA, DistanceV);
 
     }
     void Update()
@@ -74,6 +63,37 @@ public class IAEnemy : MonoBehaviour
             Shoot();
             nextFireTime = Time.time + 1f / fireRate;
         }
+    }
+
+
+
+
+    public IEnumerator HuirC()
+    {
+        yield return new WaitForSeconds(1);
+        if (fuzzyLogic.fuzzydistancePlayer == 50)
+        {
+            HuirPlayer();
+            agent.speed = 3.5f;
+
+        }
+        else if (fuzzyLogic.fuzzydistancePlayer > 50)
+        {
+
+            HuirPlayer();
+            agent.speed = 5.5f;
+
+        }
+        else if (fuzzyLogic.fuzzydistancePlayer < 50)
+        {
+
+            HuirPlayer();
+            agent.speed = 1.5f;
+        }
+
+        fuzzyLogic.Fuzzify();
+
+        StartCoroutine(HuirC());
     }
 
     public float rotationSpeed = 1f;
@@ -110,7 +130,6 @@ public class IAEnemy : MonoBehaviour
         rb.AddForce(transform.forward * velBala*10);
         balas--;
 //        fuzzyLogic.Ammo = balas;
-        fuzzyLogic.Fuzzify();
         Destroy(tempBala,2.75f);
 
     }
@@ -126,7 +145,7 @@ public class IAEnemy : MonoBehaviour
     }
     public void HuirPlayer()
     {
-        agent.SetDestination(Jugador.transform.position * -1 );
+        agent.SetDestination((gameObject.transform.position - Jugador.transform.position) );
     }
    
 }

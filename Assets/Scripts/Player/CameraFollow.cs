@@ -4,7 +4,7 @@ public class CameraFollow : MonoBehaviour
 {
     public Transform target;
     public float smoothTime = 0.6F;
-    private Vector3 _velocity = Vector3.zero;
+    private Vector3 _velocity = Vector3.zero*1;
 
     void FixedUpdate()
     {
