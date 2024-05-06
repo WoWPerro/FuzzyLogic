@@ -106,31 +106,31 @@ public class IAEnemy : MonoBehaviour
             switch (fuzzyLogic.DAmmo)
             {
                 case FuzzyLogic.Distancia.CERCA:
-                    HuirArmor();
+                    MovAMMO();
                     break;
 
                 case FuzzyLogic.Distancia.MEDIO:
                     if (PrioVida())
                     {
-                        HuirVida();
+                        MovLife();
                         Debug.Log("Ammo Do Nothing");
                     }
                     else
                     {
-                        HuirArmor();
+                        MovAMMO();
                     }
                     break;
 
                 case FuzzyLogic.Distancia.LEJOS:
                     if (fuzzyLogic.fuzzyAmmo <10 || !PrioVida())
                     {
-                        HuirArmor();
+                        MovAMMO();
                     }
                     else
                     {
                         if (PrioVida())
                         {
-                            HuirVida();
+                            MovLife();
                         }
                         else
                         {
@@ -146,19 +146,25 @@ public class IAEnemy : MonoBehaviour
             }
             VelHuida(fuzzyLogic.fuzzyAmmo);
         }
+        else if (Jugador.GetComponent<PlayerManager>().Vida < 1)
+        {
+            MovPos();
+            atacar = false;
+            StopAllCoroutines();
+        }
         else if (PrioVida())
         {
-            HuirVida();
+            MovLife();
         }
         else if (fuzzyLogic.fuzzyAmmo > 40 && fuzzyLogic.fuzzyPlayerHealth <50)
         {
             EvaluarAtaque(fuzzyLogic.fuzzyPlayerHealth);
-            HuirPlayer();
+            Huir();
         }
         else
         {
             EvaluarAtaqueD(fuzzyLogic.fuzzydistancePlayer);
-            HuirPlayer();
+            Huir();
         }
     }
     bool PrioVida()
@@ -203,7 +209,7 @@ public class IAEnemy : MonoBehaviour
          }
     }
 
-    public void HuirVida()//Correr hacia la base de vida
+    public void MovLife()//Correr hacia la base de vida
     {
         switch (fuzzyLogic.Vida)
         {
@@ -224,15 +230,21 @@ public class IAEnemy : MonoBehaviour
         Debug.Log(agent.destination);
     }
 
-    public void HuirArmor() //Correr a recargar municion
+    public void MovAMMO() //Correr a recargar municion
     {
         agent.SetDestination(BaseBalas.transform.position);
         Debug.Log(agent.destination);
         Debug.Log("Ammo");
     }
+    public void MovPos() //Correr a recargar municion
+    {
+        agent.SetDestination(PosClave.transform.position);
+        Debug.Log(agent.destination);
+        Debug.Log("Lose");
+    }
 
     public float distanciaSegura = 5;
-    public void HuirPlayer() //Alejarse del jugador
+    public void Huir() //Alejarse del jugador
     {
         agent.SetDestination((PosClave.position - Jugador.transform.position) + transform.position);
         Debug.Log(agent.destination);
