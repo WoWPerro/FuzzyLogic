@@ -6,57 +6,26 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     [Header("Vida")]
-    [SerializeField] float vida = 100;
-    [SerializeField] float maxvida = 100;
-    [SerializeField] float timeToHeal = 5f;
+    [SerializeField] float vida = 100; public float Vida {  get { return vida; } }
+    [SerializeField] float maxvida = 100; public float Maxvida { get { return maxvida; } }
     public bool healing= false;
-
-    [Header("Recibe Daño")]
-    [SerializeField] float timeToDamage = 1.5f;
-    [SerializeField] float timeCurrent = 1.5f;
-    public bool damn = false;
+    public BarraVida barra;
 
     [Header("Hacer Daño")]
-    [SerializeField] float damage = 15;
-    [SerializeField] float timeCooldown = 2f;
-    [SerializeField] float timeCurrentt = 2f;
-    public bool attacked;
+    [SerializeField] GameObject Arma;
+    public float damage = 15;
 
-
-    private void Update()
+    private void Start()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            attack();
-        }
-
+        barra.VidaMaxima(maxvida);
+        barra.VidaActual(vida);
+    }
+    private void FixedUpdate()
+    {
         Logic();
     }
-
     public void Logic()
     {
-        if (attacked)
-        {
-            timeCurrentt -= Time.deltaTime;
-            if (timeCurrentt < 0)
-            {
-                attacked = false;
-                timeCurrentt = timeCooldown;
-            }
-        }
-
-        if (damn)
-        {
-            timeCurrent -= Time.deltaTime;
-            if (timeCurrent <= 0)
-            {
-                damn = false;
-                timeCurrent = timeToDamage;
-
-            }
-        }
-
-
         if (healing)
         {
             if (vida < maxvida)
@@ -69,54 +38,37 @@ public class PlayerManager : MonoBehaviour
                 healing = false;
             }
 
-
         }
-        else
-        {
-            float cooldownNoDamage = timeToHeal;
-            cooldownNoDamage -= Time.deltaTime;
-
-            if (cooldownNoDamage < 0)
-            {
-                healing = true;
-            }
-
-        }
-    }
-    public void attack()
-    {
-        Debug.Log("Atacado daño hecho: " + damage);
-        attacked = true;
     }
 
     public void Damage(float damage)
     {
         Debug.Log("Atacado daño recibido: " + damage);
         vida -= damage;
+        if (vida <= 0)
+        {
+            vida = 0;
+            barra.VidaActual(vida);
+            Debug.Log("GameOver"); 
+            gameObject.SetActive(false);
 
-        damn = true;
+        }
+        else
+        {
+            barra.VidaActual(vida);
+        }
     }
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Enemy")
+        if (other.tag == "Bullet")
         {
             Damage(15);
+            Destroy(other.gameObject);
         }
 
-        if(other.tag == "Health")
-        {
-            healing = true;
-        }
 
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.tag == "Health")
-        {
-            healing = false;
-        }
-    }
 }

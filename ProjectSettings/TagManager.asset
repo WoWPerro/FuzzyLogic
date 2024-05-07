@@ -8,15 +8,18 @@ TagManager:
   - Ammo
   - Damage
   - Enemy
+  - Barrier
+  - Bullet
+  - Locked
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
-  - 
+  - Barrier
+  - Base
   - 
   - 
   - 
